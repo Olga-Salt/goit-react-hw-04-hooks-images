@@ -4,8 +4,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import Searchbar from './components/searchbar/Searchbar';
 import ImageGallery from './components/imageGallery/ImageGallery.jsx';
-// import Button from './components/button/Button.jsx';
-// import Spinner from './components/spinner/Spinner';
 import Modal from './components/modal/Modal';
 
 class App extends Component {
@@ -17,7 +15,6 @@ class App extends Component {
   };
 
   getLargePicture = (largeImageURL, tags) => {
-    console.log(largeImageURL, tags);
     this.setState({ largeImageURL, tags });
   };
 

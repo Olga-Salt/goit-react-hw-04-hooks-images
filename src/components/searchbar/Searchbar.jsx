@@ -9,13 +9,11 @@ class Searchbar extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    // const currentName = e.currentTarget.elements.name.value;
-    // console.log(e.currentTarget.elements.name.value)
 
     const { name } = this.state;
 
     if (name.trim() === '') {
-      return toast.error('Wow so easy !', {
+      return toast.error('Введите название картинки', {
         theme: 'colored',
       });
     }
@@ -26,8 +24,6 @@ class Searchbar extends Component {
   };
 
   handleChange = e => {
-    // console.log(e.target.value)
-
     const { name, value } = e.target;
     this.setState({ [name]: value.toLowerCase() });
   };

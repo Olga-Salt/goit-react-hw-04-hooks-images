@@ -1,5 +1,5 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import ImageGalleryItem from '../imageGalleryItem/ImageGalleryItem';
@@ -29,3 +29,9 @@ function PictureDataView({ pictureArray, onClose, onFetch }) {
 }
 
 export default PictureDataView;
+
+PictureDataView.propTypes = {
+  pictureArray: PropTypes.array.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onFetch: PropTypes.func.isRequired,
+};

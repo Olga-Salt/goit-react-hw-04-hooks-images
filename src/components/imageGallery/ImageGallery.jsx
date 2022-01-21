@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-// import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
+import PropTypes from 'prop-types';
+
 import fetchPicture from '../services/picture-api';
 import PicturePandingView from './PicturePangingView';
 import PictureDataView from './PictureDataView';
@@ -8,7 +10,7 @@ import Button from '../button/Button';
 
 class ImageGallery extends Component {
   state = {
-    picture: null,
+    picture: [],
     totalHits: 0,
     error: null,
     status: 'idle',
@@ -18,14 +20,17 @@ class ImageGallery extends Component {
   async componentDidUpdate(prevProps, prevState) {
     const prevName = prevProps.pictureName;
     const nextName = this.props.pictureName;
-    const { page } = this.state;
+    const { page, totalHits } = this.state;
+    const totalPages = totalHits / 12;
 
     if (prevName !== nextName) {
       this.setState({ page: 1, picture: [] });
     }
 
     if ((prevName !== nextName && page === 1) || prevState.page !== page) {
-      this.setState({ status: 'pending' });
+      if (page === 1) {
+        this.setState({ status: 'pending' });
+      }
 
       await fetchPicture(nextName, page)
         .then(newPicture => {
@@ -44,7 +49,12 @@ class ImageGallery extends Component {
           });
 
           this.scrollToBottom();
-          console.log(this.state.picture.length, this.state.totalHits);
+
+          if (page !== 1 && page >= totalPages) {
+            return toast.info('Картинок больше нет', {
+              theme: 'colored',
+            });
+          }
         })
         .catch(error => this.setState({ error, status: 'rejected' }));
     }
@@ -52,7 +62,6 @@ class ImageGallery extends Component {
 
   handleLoadMore = () => {
     this.setState(prevState => ({ page: prevState.page + 1 }));
-    console.log(this.state.page);
   };
 
   scrollToBottom = () => {
@@ -64,16 +73,18 @@ class ImageGallery extends Component {
 
   render() {
     const { picture, error, status, totalHits } = this.state;
-    const { pictureName, onClose, onFetch } = this.props;
+    const { onClose, onFetch } = this.props;
 
     if (status === 'idle') {
-      return <h1>введите имя катринки</h1>;
+      return (
+        <div>
+          <h1>Введите имя катринки</h1>
+        </div>
+      );
     }
 
     if (status === 'pending') {
-      return (
-        <PicturePandingView pictureName={pictureName} pictureArray={picture} />
-      );
+      return <PicturePandingView />;
     }
 
     if (status === 'rejected') {
@@ -82,19 +93,27 @@ class ImageGallery extends Component {
 
     if (status === 'resolved') {
       return (
-        <div>
-          <PictureDataView
-            pictureArray={picture}
-            onClose={onClose}
-            onFetch={onFetch}
-          />
-          {totalHits !== picture.length && (
+        <>
+          <div>
+            <PictureDataView
+              pictureArray={picture}
+              onClose={onClose}
+              onFetch={onFetch}
+            />
+          </div>
+          {totalHits > picture.length && (
             <Button onClick={this.handleLoadMore} />
           )}
-        </div>
+        </>
       );
     }
   }
 }
 
 export default ImageGallery;
+
+ImageGallery.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onFetch: PropTypes.func.isRequired,
+  pictureName: PropTypes.string.isRequired,
+};

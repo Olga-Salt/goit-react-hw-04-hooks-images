@@ -1,5 +1,5 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import errorImage from './error.jpg';
 
 function PictureErrorView({ message }) {
@@ -12,3 +12,7 @@ function PictureErrorView({ message }) {
 }
 
 export default PictureErrorView;
+
+PictureErrorView.propTypes = {
+  message: PropTypes.string.isRequired,
+};
