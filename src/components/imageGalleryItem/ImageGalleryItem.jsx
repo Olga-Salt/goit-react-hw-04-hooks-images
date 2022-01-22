@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { ImageGalleryItem, GalleryImage } from './ImageGalleryItem.styled';
 
-const ImageGalleryItem = ({
+const ImageGalleryItems = ({
   onClose,
   onFetch,
   webformatURL,
@@ -9,20 +10,20 @@ const ImageGalleryItem = ({
   largeImageURL,
 }) => {
   return (
-    <li
+    <ImageGalleryItem
       onClick={() => {
         onFetch(largeImageURL, tags);
         onClose();
       }}
     >
-      <img src={webformatURL} width="100" alt={tags} />
-    </li>
+      <GalleryImage src={webformatURL} alt={tags} />
+    </ImageGalleryItem>
   );
 };
 
-export default ImageGalleryItem;
+export default ImageGalleryItems;
 
-ImageGalleryItem.propTypes = {
+ImageGalleryItems.propTypes = {
   onClose: PropTypes.func.isRequired,
   onFetch: PropTypes.func.isRequired,
   webformatURL: PropTypes.string.isRequired,

@@ -2,11 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import ImageGalleryItem from '../imageGalleryItem/ImageGalleryItem';
+import ImageGalleryItems from '../imageGalleryItem/ImageGalleryItem';
 
 const PicturesList = styled.ul`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  max-width: calc(100vw - 48px);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-gap: 16px;
+  padding: 0;
 `;
 
 function PictureDataView({ pictureArray, onClose, onFetch }) {
@@ -14,7 +17,7 @@ function PictureDataView({ pictureArray, onClose, onFetch }) {
     <div>
       <PicturesList className="gallery">
         {pictureArray.map(({ id, webformatURL, tags, largeImageURL }) => (
-          <ImageGalleryItem
+          <ImageGalleryItems
             key={id}
             webformatURL={webformatURL}
             tags={tags}

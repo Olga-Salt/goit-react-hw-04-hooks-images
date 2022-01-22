@@ -1,12 +1,43 @@
 import React, { Component } from 'react';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import * as Scroll from 'react-scroll';
 
 import fetchPicture from '../services/picture-api';
-import PicturePandingView from './PicturePangingView';
 import PictureDataView from './PictureDataView';
 import PictureErrorView from './PictureErrorView';
 import Button from '../button/Button';
+
+const ImgGalleryWrapper = styled.div`
+  text-align: center;
+  > div {
+    margin-bottom: 20px;
+  }
+`;
+
+const IdleText = styled.h2`
+  text-transform: uppercase;
+  color: transparent;
+  background: #666666;
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  background-clip: text;
+  text-shadow: 0px 3px 3px rgba(255, 255, 255, 0.5);
+  text-shadow: 0px 3px 3px rgba(255, 255, 255, 0.5);
+`;
+
+function isPictureEnd(page, totalHits, onLoading) {
+  const totalPages = totalHits / 12;
+
+  if (page !== 1 && page >= totalPages) {
+    onLoading(false);
+
+    return toast.info('Картинок больше нет', {
+      theme: 'colored',
+    });
+  }
+}
 
 class ImageGallery extends Component {
   state = {
@@ -21,22 +52,26 @@ class ImageGallery extends Component {
     const prevName = prevProps.pictureName;
     const nextName = this.props.pictureName;
     const { page, totalHits } = this.state;
-    const totalPages = totalHits / 12;
+    const { onLoading } = this.props;
 
     if (prevName !== nextName) {
       this.setState({ page: 1, picture: [] });
     }
 
     if ((prevName !== nextName && page === 1) || prevState.page !== page) {
-      if (page === 1) {
-        this.setState({ status: 'pending' });
-      }
+      onLoading(true);
 
-      await fetchPicture(nextName, page)
+      await fetchPicture(nextName, page, onLoading)
         .then(newPicture => {
           if (newPicture.hits.length === 0) {
+            onLoading(false);
+
             return Promise.reject(
-              new Error(`Нет картинки с именем ${nextName}`),
+              new Error(
+                toast.warning('Такой картинки нет', {
+                  theme: 'colored',
+                }),
+              ),
             );
           }
 
@@ -48,13 +83,9 @@ class ImageGallery extends Component {
             };
           });
 
-          this.scrollToBottom();
-
-          if (page !== 1 && page >= totalPages) {
-            return toast.info('Картинок больше нет', {
-              theme: 'colored',
-            });
-          }
+          Scroll.animateScroll.scrollToBottom({ duration: 2000 });
+          isPictureEnd(page, totalHits, onLoading);
+          onLoading(false);
         })
         .catch(error => this.setState({ error, status: 'rejected' }));
     }
@@ -64,36 +95,21 @@ class ImageGallery extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  scrollToBottom = () => {
-    window.scrollTo({
-      top: document.body.clientHeight,
-      behavior: 'smooth',
-    });
-  };
-
   render() {
-    const { picture, error, status, totalHits } = this.state;
+    const { picture, status, totalHits } = this.state;
     const { onClose, onFetch } = this.props;
 
     if (status === 'idle') {
-      return (
-        <div>
-          <h1>Введите имя катринки</h1>
-        </div>
-      );
-    }
-
-    if (status === 'pending') {
-      return <PicturePandingView />;
+      return <IdleText>Введите имя катринки</IdleText>;
     }
 
     if (status === 'rejected') {
-      return <PictureErrorView message={error.message} />;
+      return <PictureErrorView />;
     }
 
     if (status === 'resolved') {
       return (
-        <>
+        <ImgGalleryWrapper>
           <div>
             <PictureDataView
               pictureArray={picture}
@@ -104,7 +120,7 @@ class ImageGallery extends Component {
           {totalHits > picture.length && (
             <Button onClick={this.handleLoadMore} />
           )}
-        </>
+        </ImgGalleryWrapper>
       );
     }
   }

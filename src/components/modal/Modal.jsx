@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 
+import { Overlay, ModalContent } from './Modal.styled';
 const modalRoot = document.querySelector('#modal-root');
 
 class Modal extends Component {
@@ -27,13 +28,9 @@ class Modal extends Component {
 
   render() {
     return createPortal(
-      <div
-        className="overlay"
-        style={{ height: '300px' }}
-        onClick={this.handleackdropClick}
-      >
-        <div className="modal">{this.props.children}</div>
-      </div>,
+      <Overlay className="overlay" onClick={this.handleackdropClick}>
+        <ModalContent className="modal">{this.props.children}</ModalContent>
+      </Overlay>,
       modalRoot,
     );
   }
