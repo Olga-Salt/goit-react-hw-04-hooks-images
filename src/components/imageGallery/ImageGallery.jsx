@@ -58,32 +58,35 @@ function ImageGallery({ onLoading, onFetch, onClose, pictureName }) {
 
     onLoading(true);
 
-    fetchPicture(pictureName, page, onLoading)
-      .then(newPicture => {
-        if (newPicture.hits.length === 0) {
+    async function fetchPic() {
+      await fetchPicture(pictureName, page, onLoading)
+        .then(newPicture => {
+          if (newPicture.hits.length === 0) {
+            onLoading(false);
+
+            return Promise.reject(
+              new Error(
+                toast.warning('Такой картинки нет', {
+                  theme: 'colored',
+                }),
+              ),
+            );
+          }
+
+          setPicture(prevPicture => [...prevPicture, ...newPicture.hits]);
+          setStatus('resolved');
+          setTotalHits(newPicture.totalHits);
+
+          Scroll.animateScroll.scrollToBottom({ duration: 2000 });
+          isPictureEnd(page, totalHits, onLoading);
           onLoading(false);
-
-          return Promise.reject(
-            new Error(
-              toast.warning('Такой картинки нет', {
-                theme: 'colored',
-              }),
-            ),
-          );
-        }
-
-        setPicture(prevPicture => [...prevPicture, ...newPicture.hits]);
-        setStatus('resolved');
-        setTotalHits(newPicture.totalHits);
-
-        Scroll.animateScroll.scrollToBottom({ duration: 2000 });
-        isPictureEnd(page, totalHits, onLoading);
-        onLoading(false);
-      })
-      .catch(error => {
-        setError(error);
-        setStatus('rejected');
-      });
+        })
+        .catch(error => {
+          setError(error);
+          setStatus('rejected');
+        });
+    }
+    fetchPic();
   }, [onLoading, page, pictureName, totalHits]);
 
   const handleLoadMore = () => {
