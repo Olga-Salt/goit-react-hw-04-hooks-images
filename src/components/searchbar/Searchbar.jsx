@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 
 import { toast } from 'react-toastify';
@@ -10,15 +10,11 @@ import {
   SearchFormInput,
 } from './Searchbar.styled';
 
-class Searchbar extends Component {
-  state = {
-    name: '',
-  };
+function Searchbar({ onSubmit }) {
+  const [name, setName] = useState('');
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-
-    const { name } = this.state;
 
     if (name.trim() === '') {
       return toast.error('Введите название картинки', {
@@ -26,43 +22,33 @@ class Searchbar extends Component {
       });
     }
 
-    this.props.onSubmit(name);
-
-    this.reset();
+    onSubmit(name);
+    reset();
   };
 
-  handleChange = e => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value.toLowerCase() });
+  const reset = () => {
+    setName('');
   };
 
-  reset = () => {
-    this.setState({ name: '' });
-  };
+  return (
+    <SearchbarStyle>
+      <SearchForm onSubmit={handleSubmit}>
+        <SearchBtn type="submit">
+          <BsSearch />
+        </SearchBtn>
 
-  render() {
-    const { name } = this.state;
-
-    return (
-      <SearchbarStyle>
-        <SearchForm onSubmit={this.handleSubmit}>
-          <SearchBtn type="submit">
-            <BsSearch />
-          </SearchBtn>
-
-          <SearchFormInput
-            type="text"
-            name="name"
-            autoComplete="off"
-            autoFocus
-            value={name}
-            onChange={this.handleChange}
-            placeholder="Search images and photos"
-          />
-        </SearchForm>
-      </SearchbarStyle>
-    );
-  }
+        <SearchFormInput
+          type="text"
+          name="name"
+          autoComplete="off"
+          autoFocus
+          value={name}
+          onChange={e => setName(e.target.value.toLocaleLowerCase())}
+          placeholder="Search images and photos"
+        />
+      </SearchForm>
+    </SearchbarStyle>
+  );
 }
 
 export default Searchbar;

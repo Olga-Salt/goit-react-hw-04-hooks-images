@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,60 +20,45 @@ const Container = styled.div`
   justify-items: center;
 `;
 
-class App extends Component {
-  state = {
-    picture: '',
-    showModal: false,
-    largeImageURL: '',
-    tags: '',
-    loading: false,
+function App() {
+  const [picture, setPicture] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [largeImageUrl, setLargeImageUrl] = useState('');
+  const [tags, setTags] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const getLargePicture = (largeImageURL, tags) => {
+    setLargeImageUrl(largeImageURL);
+    setTags(tags);
   };
 
-  getLargePicture = (largeImageURL, tags) => {
-    this.setState({ largeImageURL, tags });
+  const toggleModal = () => {
+    setShowModal(prevState => !prevState);
   };
 
-  handleFormSearch = picture => {
-    this.setState({ picture });
-  };
-
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
-  };
-
-  setLoading = value => {
-    this.setState({ loading: value });
-  };
-
-  render() {
-    const { showModal, picture, largeImageURL, tags, loading } = this.state;
-
-    return (
-      <Container>
-        <Searchbar onSubmit={this.handleFormSearch}></Searchbar>
-        <ToastContainer autoClose={3000} />
-        <div>
-          <ImageGallery
-            pictureName={picture}
-            onClose={this.toggleModal}
-            onFetch={this.getLargePicture}
-            onLoading={this.setLoading}
-          />
-          {loading && <PicturePangingView />}
-          {showModal && (
-            <Modal onClose={this.toggleModal}>
-              <ModalImg src={largeImageURL} alt={tags} />
-              <ModalBtnClose type="button" onClick={this.toggleModal}>
-                <AiOutlineClose />
-              </ModalBtnClose>
-            </Modal>
-          )}
-        </div>
-      </Container>
-    );
-  }
+  return (
+    <Container>
+      <Searchbar onSubmit={setPicture}></Searchbar>
+      <ToastContainer autoClose={3000} />
+      <div>
+        <ImageGallery
+          pictureName={picture}
+          onClose={toggleModal}
+          onFetch={getLargePicture}
+          onLoading={setLoading}
+        />
+        {loading && <PicturePangingView />}
+        {showModal && (
+          <Modal onClose={toggleModal}>
+            <ModalImg src={largeImageUrl} alt={tags} />
+            <ModalBtnClose type="button" onClick={toggleModal}>
+              <AiOutlineClose />
+            </ModalBtnClose>
+          </Modal>
+        )}
+      </div>
+    </Container>
+  );
 }
 
 export default App;

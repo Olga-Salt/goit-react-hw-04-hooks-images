@@ -16,9 +16,9 @@ function PictureDataView({ pictureArray, onClose, onFetch }) {
   return (
     <div>
       <PicturesList className="gallery">
-        {pictureArray.map(({ id, webformatURL, tags, largeImageURL }) => (
+        {pictureArray.map(({ webformatURL, tags, largeImageURL }) => (
           <ImageGalleryItems
-            key={id}
+            key={webformatURL}
             webformatURL={webformatURL}
             tags={tags}
             largeImageURL={largeImageURL}

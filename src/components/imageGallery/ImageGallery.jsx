@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -39,90 +39,78 @@ function isPictureEnd(page, totalHits, onLoading) {
   }
 }
 
-class ImageGallery extends Component {
-  state = {
-    picture: [],
-    totalHits: 0,
-    error: null,
-    status: 'idle',
-    page: 1,
+function ImageGallery({ onLoading, onFetch, onClose, pictureName }) {
+  const [picture, setPicture] = useState([]);
+  const [totalHits, setTotalHits] = useState(0);
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState('idle');
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+    setPicture([]);
+  }, [pictureName]);
+
+  useEffect(() => {
+    if (pictureName === '') {
+      return;
+    }
+
+    onLoading(true);
+
+    fetchPicture(pictureName, page, onLoading)
+      .then(newPicture => {
+        if (newPicture.hits.length === 0) {
+          onLoading(false);
+
+          return Promise.reject(
+            new Error(
+              toast.warning('Такой картинки нет', {
+                theme: 'colored',
+              }),
+            ),
+          );
+        }
+
+        setPicture(prevPicture => [...prevPicture, ...newPicture.hits]);
+        setStatus('resolved');
+        setTotalHits(newPicture.totalHits);
+
+        Scroll.animateScroll.scrollToBottom({ duration: 2000 });
+        isPictureEnd(page, totalHits, onLoading);
+        onLoading(false);
+      })
+      .catch(error => {
+        setError(error);
+        setStatus('rejected');
+      });
+  }, [onLoading, page, pictureName, totalHits]);
+
+  const handleLoadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  async componentDidUpdate(prevProps, prevState) {
-    const prevName = prevProps.pictureName;
-    const nextName = this.props.pictureName;
-    const { page, totalHits } = this.state;
-    const { onLoading } = this.props;
-
-    if (prevName !== nextName) {
-      this.setState({ page: 1, picture: [] });
-    }
-
-    if ((prevName !== nextName && page === 1) || prevState.page !== page) {
-      onLoading(true);
-
-      await fetchPicture(nextName, page, onLoading)
-        .then(newPicture => {
-          if (newPicture.hits.length === 0) {
-            onLoading(false);
-
-            return Promise.reject(
-              new Error(
-                toast.warning('Такой картинки нет', {
-                  theme: 'colored',
-                }),
-              ),
-            );
-          }
-
-          this.setState(prevState => {
-            return {
-              picture: [...prevState.picture, ...newPicture.hits],
-              status: 'resolved',
-              totalHits: newPicture.totalHits,
-            };
-          });
-
-          Scroll.animateScroll.scrollToBottom({ duration: 2000 });
-          isPictureEnd(page, totalHits, onLoading);
-          onLoading(false);
-        })
-        .catch(error => this.setState({ error, status: 'rejected' }));
-    }
+  if (status === 'idle') {
+    return <IdleText>Введите имя катринки</IdleText>;
   }
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
-  };
+  if (status === 'rejected') {
+    return <PictureErrorView />;
+  }
 
-  render() {
-    const { picture, status, totalHits } = this.state;
-    const { onClose, onFetch } = this.props;
-
-    if (status === 'idle') {
-      return <IdleText>Введите имя катринки</IdleText>;
-    }
-
-    if (status === 'rejected') {
-      return <PictureErrorView />;
-    }
-
-    if (status === 'resolved') {
-      return (
-        <ImgGalleryWrapper>
-          <div>
-            <PictureDataView
-              pictureArray={picture}
-              onClose={onClose}
-              onFetch={onFetch}
-            />
-          </div>
-          {totalHits > picture.length && (
-            <Button onClick={this.handleLoadMore} />
-          )}
-        </ImgGalleryWrapper>
-      );
-    }
+  if (status === 'resolved') {
+    return (
+      <ImgGalleryWrapper>
+        <div>
+          <PictureDataView
+            pictureArray={picture}
+            onClose={onClose}
+            onFetch={onFetch}
+          />
+        </div>
+        {totalHits > picture.length && <Button onClick={handleLoadMore} />}
+      </ImgGalleryWrapper>
+    );
   }
 }
 
