@@ -42,7 +42,6 @@ function isPictureEnd(page, totalHits, onLoading) {
 function ImageGallery({ onLoading, onFetch, onClose, pictureName }) {
   const [picture, setPicture] = useState([]);
   const [totalHits, setTotalHits] = useState(0);
-  const [error, setError] = useState(null);
   const [status, setStatus] = useState('idle');
   const [page, setPage] = useState(1);
 
@@ -73,7 +72,9 @@ function ImageGallery({ onLoading, onFetch, onClose, pictureName }) {
             );
           }
 
-          setPicture(prevPicture => [...prevPicture, ...newPicture.hits]);
+          setPicture(prevState =>
+            page > 1 ? [...prevState, ...newPicture.hits] : newPicture.hits,
+          );
           setStatus('resolved');
           setTotalHits(newPicture.totalHits);
 
@@ -81,8 +82,7 @@ function ImageGallery({ onLoading, onFetch, onClose, pictureName }) {
           isPictureEnd(page, totalHits, onLoading);
           onLoading(false);
         })
-        .catch(error => {
-          setError(error);
+        .catch(() => {
           setStatus('rejected');
         });
     }
