@@ -1,31 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import * as Scroll from 'react-scroll';
 
 import fetchPicture from '../services/picture-api';
 import PictureDataView from './PictureDataView';
 import PictureErrorView from './PictureErrorView';
 import Button from '../button/Button';
-
-const ImgGalleryWrapper = styled.div`
-  text-align: center;
-  > div {
-    margin-bottom: 20px;
-  }
-`;
-
-const IdleText = styled.h2`
-  text-transform: uppercase;
-  color: transparent;
-  background: #666666;
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  background-clip: text;
-  text-shadow: 0px 3px 3px rgba(255, 255, 255, 0.5);
-  text-shadow: 0px 3px 3px rgba(255, 255, 255, 0.5);
-`;
+import { ImgGalleryWrapper, IdleText } from './ImageGallery.styled';
 
 function isPictureEnd(page, totalHits, onLoading) {
   const totalPages = totalHits / 12;
@@ -38,6 +19,13 @@ function isPictureEnd(page, totalHits, onLoading) {
     });
   }
 }
+
+const scrollToBottom = () => {
+  window.scrollTo({
+    top: document.body.clientHeight,
+    behavior: 'smooth',
+  });
+};
 
 function ImageGallery({ onLoading, onFetch, onClose, pictureName }) {
   const [picture, setPicture] = useState([]);
@@ -78,7 +66,7 @@ function ImageGallery({ onLoading, onFetch, onClose, pictureName }) {
           setStatus('resolved');
           setTotalHits(newPicture.totalHits);
 
-          Scroll.animateScroll.scrollToBottom({ duration: 2000 });
+          scrollToBottom();
           isPictureEnd(page, totalHits, onLoading);
           onLoading(false);
         })
@@ -86,6 +74,7 @@ function ImageGallery({ onLoading, onFetch, onClose, pictureName }) {
           setStatus('rejected');
         });
     }
+
     fetchPic();
   }, [onLoading, page, pictureName, totalHits]);
 

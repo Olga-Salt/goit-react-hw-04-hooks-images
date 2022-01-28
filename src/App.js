@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
@@ -11,14 +10,7 @@ import ImageGallery from './components/imageGallery/ImageGallery.jsx';
 import Modal from './components/modal/Modal';
 import { ModalImg, ModalBtnClose } from './components/modal/Modal.styled';
 import PicturePangingView from './components/imageGallery/PicturePangingView';
-
-const Container = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 16px;
-  padding-bottom: 24px;
-  justify-items: center;
-`;
+import { Container } from './App.styled';
 
 function App() {
   const [picture, setPicture] = useState('');
